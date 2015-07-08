@@ -22,7 +22,14 @@
               <span><a href="/author">Créditos</a></span>
           </nav>
           <section class="main" id="s1">
-          <%- body %>
+            <% if (Object.keys(errors).length) { %>
+              <span id="ErrorMsgs">Corregir errores:<br/>
+              <% for (var i in errors) { %>
+                <span> <%= errors[i] %> </span><br/>
+              <% } %>
+              </span>
+            <% } %>
+            <div><%- body %></div>
           </section>
           <footer class="main" id="f1">
               <p><a href="http://es.wikipedia.org/wiki/Quiz">¿Qué es un Quiz?</a></p>
