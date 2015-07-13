@@ -25,21 +25,30 @@ var sequelize = new Sequelize(dbName, user, password,
   }
   );
 
-// Se importa la definición de la tabla Quiz en quiz.js
+// Se importan las definiciones de las tablas
 var Quiz = sequelize.import(path.join(__dirname, 'quiz'));
+var Comment = sequelize.import(path.join(__dirname, 'comment'));
 
-// Se exporta la definición de la tabla Quiz
+// Se crean las relaciones
+Comment.belongsTo(Quiz);
+Quiz.hasMany(Comment);
+
+// Se exportan la definicies de las tablas
 exports.Quiz = Quiz;
+exports.Comment = Comment;
 
 // Se inicializa la tabla
 sequelize.sync().then(function() {
   Quiz.count().then(function(count) {
     if (count === 0) {
+      var comment = Comment.create({ texto: 'Rome en inglés'});
+
       Quiz.create({ pregunta:   'Capital de Italia',
                     respuesta:  'Roma',
                     tema:       'humanidades'
                   })
-      .then(function() { console.log('Base de datos inicializa')});
+      .addComment(comment)
+      .then(function() { console.log('Base de datos inicializada')});
     };
   });
 });
