@@ -33,22 +33,24 @@ var Comment = sequelize.import(path.join(__dirname, 'comment'));
 Comment.belongsTo(Quiz);
 Quiz.hasMany(Comment);
 
-// Se exportan la definicies de las tablas
+// Se exportan la definiciones de las tablas
 exports.Quiz = Quiz;
 exports.Comment = Comment;
 
-// Se inicializa la tabla
+// Se inicializan las tablas
 sequelize.sync().then(function() {
   Quiz.count().then(function(count) {
     if (count === 0) {
-      var comment = Comment.create({ texto: 'Rome en inglés'});
-
       Quiz.create({ pregunta:   'Capital de Italia',
                     respuesta:  'Roma',
                     tema:       'humanidades'
-                  })
-      .addComment(comment)
-      .then(function() { console.log('Base de datos inicializada')});
+                  }).then(function(quiz) {
+        Comment.create({ texto: 'Rome en inglés', publicado: true}).then(function(comment) {
+          quiz.addComment(comment).then(function() {
+             console.log('Base de datos inicializada')
+          });
+        })
+      });
     };
   });
 });
