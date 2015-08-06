@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var partials = require('express-partials');
 var methodOverride = require('method-override');
 var session = require('express-session');
+var moment = require('moment');
 
 var routes = require('./routes/index');
 
@@ -29,7 +30,7 @@ app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(function(req, res, next) {
-  // Se guarda el path en session.redir para volver a la página actua tras hacer
+  // Se guarda el path en session.redir para volver a la página actual tras hacer
   // login
   if (!req.path.match(/\/login|\/logout/)) {
     req.session.redir = req.path;
@@ -37,6 +38,25 @@ app.use(function(req, res, next) {
 
   // Se hace visible req.session en las vistas
   res.locals.session = req.session;
+
+  next();
+});
+
+// autologout
+app.use(function(req, res, next) {
+  if (req.session.user) {
+    var now = moment();
+
+    if (!req.session.user.lastTime) {
+      req.session.user.lastTime = now;
+    }
+
+    if (now.isAfter(moment(req.session.user.lastTime).add(2, 'minutes'))) {
+      delete req.session.user;
+    } else {
+      req.session.user.lastTime = now;
+    }
+  }
 
   next();
 });
